@@ -6,41 +6,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
-)
 
-func printAsciiArt(sentences []string, textFile []string) string {
-	res := ""
-	for i, word := range sentences {
-		if word == "" {
-			if i != 0 {
-				res += "\n"
-			}
-			continue
-		}
-		lineLen := 0
-		for i := 0; i < len(word); i++ {
-			for lineIndex, line := range textFile {
-				if lineIndex == (int(word[i])-32)*9+2 {
-					lineLen += len(line)
-				}
-			}
-		}
-		if lineLen > 177 {
-			word = "Input Is Too Long!"
-		}
-		for h := 1; h < 9; h++ {
-			for i := 0; i < len(word); i++ {
-				for lineIndex, line := range textFile {
-					if lineIndex == (int(word[i])-32)*9+h {
-						res += line
-					}
-				}
-			}
-			res += "\n"
-		}
-	}
-	return res
-}
+	"github.com/ahatdemirezen/Ascii-Art-Web-Export-File/printasciiart"
+)
 
 func AsciiArtWriter(argStr string, bannerType string) string {
 	sepArgs := strings.Split(argStr, "\n")
@@ -65,7 +33,7 @@ func AsciiArtWriter(argStr string, bannerType string) string {
 		panic(err)
 	}
 
-	res := printAsciiArt(sepArgs, lines)
+	res := printasciiart.PrintAsciiArt(sepArgs, lines)
 	return res
 }
 
@@ -78,7 +46,7 @@ func AsciiToWeb(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 
-		http.ServeFile(w, r, "form.html")
+		http.ServeFile(w, r, "templates/form.html")
 	case "POST":
 		if err := r.ParseForm(); err != nil {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
@@ -113,7 +81,7 @@ func AsciiToWeb(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Disposition", "attachment; filename=ascii_art.txt")
 		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, "%s\n", res) // ASCII sanatını dosyaya yazdır
+		fmt.Fprintf(w, "%s\n", res)
 		return
 
 	default:
